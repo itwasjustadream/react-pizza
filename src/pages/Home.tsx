@@ -1,7 +1,7 @@
 import React from 'react';
 import qs from 'qs';
 
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import Categories from '../components/Categories';
@@ -17,10 +17,11 @@ import {
   setFilters,
 } from '../redux/slices/filterSlice';
 import { fetchPizzas, selectPizzaData } from '../redux/slices/pizzaSlice';
+import { useAppDispatch } from '../redux/store';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const isSearch = React.useRef(false);
   const isMounted = React.useRef(false);
 
@@ -40,7 +41,6 @@ const Home: React.FC = () => {
     const search = searchValue ? `&title=*${searchValue}` : '';
 
     dispatch(
-      // @ts-ignore
       fetchPizzas({
         category,
         search,
@@ -68,7 +68,14 @@ const Home: React.FC = () => {
       const params = qs.parse(window.location.search.substring(1));
       const sort = sortList.find((obj) => obj.sortProperty === params.sortProperty);
 
-      dispatch(setFilters({ ...params, sort }));
+      dispatch(
+        setFilters({
+          searchValue: String(params.search),
+          categoryId: Number(params.categoryId),
+          currentPage: Number(params.currentPage),
+          sort: sort || sortList[0],
+        }),
+      );
       isSearch.current = true;
     }
   }, []);
